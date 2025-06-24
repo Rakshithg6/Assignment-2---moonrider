@@ -48,6 +48,13 @@ jobs:
         with:
           version: 'latest'
 
+      - name: Verify KUBE_CONFIG_DATA is set
+        run: |
+          if [ -z "$KUBE_CONFIG_DATA" ]; then
+            echo "KUBE_CONFIG_DATA is not set! Failing the deployment."
+            exit 1
+          fi
+
       - name: Deploy to Kubernetes
         env:
           KUBE_CONFIG_DATA: ${{ secrets.KUBE_CONFIG_DATA }}
@@ -63,3 +70,7 @@ jobs:
           sleep 30
           kubectl get pods -A
           # Add more integration tests as needed
+
+      - name: Cleanup kubeconfig
+        if: always()
+        run: rm -f kubeconfig
