@@ -54,7 +54,9 @@ jobs:
         run: |
           echo "$KUBE_CONFIG_DATA" | base64 --decode > kubeconfig
           export KUBECONFIG=$(pwd)/kubeconfig
-          kubectl apply -f k8s/
+          for file in k8s/*.yaml; do
+            kubectl apply --validate=false -f "$file"
+          done
 
       - name: Post-deployment health check
         run: |
