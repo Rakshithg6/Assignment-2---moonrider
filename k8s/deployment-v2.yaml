@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: springboot-crud-v2
+  namespace: v2
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: springboot-crud
+      version: v2
+  template:
+    metadata:
+      labels:
+        app: springboot-crud
+        version: v2
+    spec:
+      containers:
+        - name: springboot-crud
+          image: your-dockerhub-username/spring-boot-crud-example:v2.0.0
+          ports:
+            - containerPort: 8080
+          env:
+            - name: JAVA_OPTS
+              value: "-Xms256m -Xmx512m"
+          resources:
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+            requests:
+              cpu: "200m"
+              memory: "256Mi"
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 15
+            periodSeconds: 20

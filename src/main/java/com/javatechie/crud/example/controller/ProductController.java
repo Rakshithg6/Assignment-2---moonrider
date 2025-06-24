@@ -6,9 +6,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
 
 @RestController
 public class ProductController {
+    @GetMapping("/health")
+    public String healthCheck() {
+        return "OK";
+    }
 
     @Autowired
     private ProductService service;
@@ -24,9 +30,24 @@ public class ProductController {
     }
 
     @GetMapping("/products")
-    public List<Product> findAllProducts() {
-        return service.getProducts();
+public List<Product> findAllProducts() {
+    return service.getProducts();
+}
+
+// v1.1: Search products by keyword (name contains substring)
+// v2.0: Enhanced search endpoint
+@GetMapping("/products/search")
+public ResponseEntity<?> searchProducts(
+        @RequestParam(required = false) String name,
+        @RequestParam(required = false) Double minPrice,
+        @RequestParam(required = false) Double maxPrice) {
+    try {
+        List<Product> results = service.searchProducts(name, minPrice, maxPrice);
+        return ResponseEntity.ok(results);
+    } catch (RuntimeException e) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
     }
+}
 
     @GetMapping("/productById/{id}")
     public Product findProductById(@PathVariable int id) {
